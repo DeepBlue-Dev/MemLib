@@ -2,7 +2,7 @@
  * MemLib.c
  *
  * Created: 15/03/2022 20:53:24
- * Author : arthu
+ * Author : blue
  */ 
 
  #include "MemLib.h"
@@ -17,14 +17,30 @@ uint8_t mem_resize_region(Region* region){
 	}
 }
 
-uint8_t mem_write_byte(Region* region, uint8_t byte){
-	if((region->element_count * sizeof(uint8_t)) >= region->size){	//	check if byte fits in currently allocated space
-		if(!mem_resize_region(region)){return 0;}	//	try allocating more space
-	} else {
+uint8_t mem_write_string(Region* region, char* string){
+	const uint8_t len = (uint8_t)strlen_P(string);	//	store lenght of the string with the null-byte
 
-		(region->ptr + (++region->element_count)) = byte;
-		region->size += sizeof(uint8_t);
+	while(((region->element_count + len) * sizeof(uint8_t)) > region->size){
+		if(!mem_resize_region(region)){return 0;}
 	}
+
+	for(uint8_t index = 0; index < len; index++){
+		*(region->ptr + (++region->element_count)) = *(string + index);
+	}
+
+	region->size += (len * sizeof(uint8_t));
+	return 1;
+}
+
+uint8_t mem_write_byte(Region* region, uint8_t byte){
+	if(((region->element_count + 1) * sizeof(uint8_t)) > region->size){	//	check if byte fits in currently allocated space
+		if(!mem_resize_region(region)){return 0;}	//	try allocating more space
+	}
+
+	*(region->ptr + (++region->element_count)) = byte;	//	increment element_count, and assign byte to correct space
+	region->size += sizeof(uint8_t);	//	update size
+	return 1;	//	return success	
+
 }
 
 
