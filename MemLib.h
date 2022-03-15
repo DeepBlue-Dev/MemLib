@@ -2,7 +2,7 @@
  * MemLib.h
  *
  * Created: 15/03/2022 20:55:20
- *  Author: arthu
+ *  Author: blue
  */ 
 
  #include <stdint-gcc.h>
