@@ -18,14 +18,14 @@ uint8_t mem_resize_region(Region* region){
 }
 
 uint8_t mem_write_string(Region* region, char* string){
-	const uint8_t len = (uint8_t)strlen_P(string);	//	store lenght of the string with the null-byte
+	const uint8_t len = (uint8_t)strlen_P(string) + 1;	//	store lenght of the string with the null-byte
 
 	while(((region->element_count + len) * sizeof(uint8_t)) > region->size){
 		if(!mem_resize_region(region)){return 0;}
 	}
 
 	for(uint8_t index = 0; index < len; index++){
-		*(region->ptr + (++region->element_count)) = *(string + index);
+		*(region->ptr + (region->element_count++)) = *(string + index);
 	}
 
 	region->size += (len * sizeof(uint8_t));
@@ -47,10 +47,10 @@ uint8_t mem_write_byte(Region* region, uint8_t byte){
 Region* mem_alloc_region(uint8_t elements){
 	Region* region = (Region*) malloc(sizeof(Region));	//	allocate space for the struct
 
-	if(region){return NULL;}	//	return NULL pointer if malloc failed
+	if(!region){return NULL;}	//	return NULL pointer if malloc failed
 	region->element_count = 0;
 	region->size = 0;
-	region->ptr = (uint8_t*)malloc((elements)?elements:MEM_MALLOC_AMOUNT);	//	if elements is 0, use MEM_MALLOC_AMOUNT
+	region->ptr = (uint8_t*)malloc(((elements)?elements:MEM_MALLOC_AMOUNT) * sizeof(uint8_t));	//	if elements is 0, use MEM_MALLOC_AMOUNT
 	
 	if(region->ptr == NULL){return NULL;}	//	if allocating heap space failed, return NULL pointer
 
